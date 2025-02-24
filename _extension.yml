@@ -1,0 +1,12 @@
+name: quiz
+title: Interactive Quiz Extension
+author: Your Name
+version: 1.0.0
+quarto-required: ">=1.2.0"
+
+contributes:
+  filters:
+    - quiz.lua
+  resources:
+    - quiz.js
+    - quiz.css
