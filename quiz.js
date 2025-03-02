@@ -141,12 +141,21 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             try {
+                // Get the markdown versions of question and options
+                const questionMarkdown = container.dataset.questionMarkdown || questionText;
+                
+                // Create a modified options array that uses markdown content
+                const optionsWithMarkdown = options.map(option => ({
+                    text: option.markdown || option.text, // Use markdown if available
+                    is_correct: option.is_correct
+                }));
+                
                 // Post the question to the server
                 const response = await apiCall(`/api/pages/${window.currentQuizPageId}/questions`, {
                     method: 'POST',
                     body: JSON.stringify({
-                        text: questionText,
-                        options: options
+                        text: questionMarkdown, // Use markdown version
+                        options: optionsWithMarkdown
                     })
                 });
 

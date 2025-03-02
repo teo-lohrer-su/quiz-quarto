@@ -144,17 +144,23 @@ function Div(el)
               newItem:insert(item[j])
             end
             
-            -- Create plain text version
+            -- Get the original markdown by converting to markdown
+            local optMarkdown = pandoc.write(pandoc.Pandoc(newItem), "markdown")
+            -- Clean up markdown (remove some extra newlines, etc.)
+            optMarkdown = optMarkdown:gsub("^\n+", ""):gsub("\n+$", "")
+            
+            -- Create a plain text version for display attributes
             local optPlainText = pandoc.utils.stringify(pandoc.Pandoc({pandoc.Plain(newContent)}))
             
-            -- Create HTML version of the option content
+            -- Create HTML version of the option content for display
             local optHtml = pandoc.write(pandoc.Pandoc(newItem), "html")
             -- Clean up HTML to remove unnecessary paragraph tags
             optHtml = optHtml:gsub("^%s*<p>", ""):gsub("</p>%s*$", "")
             
-            -- Add to options list
+            -- Add to options list, including both plain text and markdown
             table.insert(options, {
               text = escapeJSON(optPlainText),
+              markdown = escapeJSON(optMarkdown),
               html = optHtml,
               is_correct = isCorrect
             })
@@ -163,13 +169,14 @@ function Div(el)
       end
     end
     
-    -- Build options JSON
+    -- Build options JSON, including markdown content
     local optionsJson = "["
     for i, opt in ipairs(options) do
       if i > 1 then optionsJson = optionsJson .. "," end
       optionsJson = optionsJson .. string.format(
-        '{"text":"%s","is_correct":%s}',
+        '{"text":"%s","markdown":"%s","is_correct":%s}',
         opt.text,
+        opt.markdown,
         opt.is_correct and "true" or "false"
       )
     end
@@ -190,6 +197,7 @@ function Div(el)
     local html = string.format([[
       <div class="question-container" 
            data-question="%s"
+           data-question-markdown="%s"
            data-options='%s'>
         <div class="question-text">%s</div>
         <div class="options-display">%s</div>
@@ -202,7 +210,7 @@ function Div(el)
           <button class="close-question" style="display: none;">Close Question</button>
         </div>
       </div>
-    ]], escapeJSON(questionPlainText), optionsJson, questionHtml, optionsHtmlStr)
+    ]], escapeJSON(questionPlainText), escapeJSON(questionMarkdown), optionsJson, questionHtml, optionsHtmlStr)
     
     return pandoc.RawBlock('html', html)
   end
