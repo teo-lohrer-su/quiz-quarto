@@ -2,7 +2,7 @@
 const CONFIG = {
     BACKEND_URL: 'http://localhost:8000',
     STUDENT_URL: 'http://localhost:5173',
-    API_KEY: 'test_key'
+    API_KEY: 'eyJ0IjoiMzU4NTFkYzEiLCJlIjoidGVvLmxvaHJlckBzb3Jib25uZS11bml2ZXJzaXRlLmZyIiwieCI6IjIwMjUwNTAzIn03LgypXGdPQ0Ls0E+2ETWz5Yfd0Npg1G1BoQ+mTpAfYo5yy/xNX9d029yV+3rdFu3N4aS1JflVhmdAkbzXnSMF'
 };
 
 document.addEventListener('DOMContentLoaded', function () {
