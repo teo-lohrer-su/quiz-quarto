@@ -1,8 +1,8 @@
 // Configuration
 const CONFIG = {
     BACKEND_URL: 'http://localhost:8000',
-    STUDENT_URL: 'http://localhost:5173',
-    API_KEY: 'eyJ0IjoiMzU4NTFkYzEiLCJlIjoidGVvLmxvaHJlckBzb3Jib25uZS11bml2ZXJzaXRlLmZyIiwieCI6IjIwMjUwNTAzIn03LgypXGdPQ0Ls0E+2ETWz5Yfd0Npg1G1BoQ+mTpAfYo5yy/xNX9d029yV+3rdFu3N4aS1JflVhmdAkbzXnSMF'
+    STUDENT_URL: 'http://localhost:5173'
+    // API key will be loaded from the document or environment variable
 };
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -16,12 +16,56 @@ document.addEventListener('DOMContentLoaded', function () {
         const qrLinkContainer = container.querySelector('.qr-link-container');
         const title = container.dataset.title;
         const description = container.dataset.description;
+        
+        // Get API key from data attribute
+        const apiKey = container.dataset.apiKey;
+        const apiKeyEnv = container.dataset.apiKeyEnv;
+
+        // Check if API key is provided
+        if (!apiKey) {
+            console.error('No API key provided. Please either:');
+            console.error('1. Add an api-key attribute to your quiz element, or');
+            console.error(`2. Set the ${apiKeyEnv} environment variable.`);
+            
+            createButton.disabled = true;
+            
+            // Create API key input form
+            const keyForm = document.createElement('div');
+            keyForm.className = 'api-key-form';
+            keyForm.innerHTML = `
+                <h3>API Key Required</h3>
+                <p>Please enter your API key to enable the quiz functionality:</p>
+                <div class="input-group">
+                    <input type="password" class="api-key-input" placeholder="Enter your API key">
+                    <button class="save-api-key">Save</button>
+                </div>
+            `;
+            
+            // Insert the form before the create button
+            container.querySelector('.quiz-header').insertBefore(keyForm, createButton);
+            
+            // Handle save button click
+            const saveButton = keyForm.querySelector('.save-api-key');
+            const keyInput = keyForm.querySelector('.api-key-input');
+            
+            saveButton.addEventListener('click', function() {
+                const enteredKey = keyInput.value.trim();
+                if (enteredKey) {
+                    // Set the key as a data attribute and enable the create button
+                    container.dataset.apiKey = enteredKey;
+                    createButton.disabled = false;
+                    keyForm.style.display = 'none';
+                }
+            });
+            
+            return;
+        }
 
         // Function to make authenticated API calls
         async function apiCall(endpoint, options = {}) {
             const headers = {
                 'Content-Type': 'application/json',
-                'api-key': CONFIG.API_KEY,
+                'api-key': apiKey, // Use the key from the container
                 ...options.headers
             };
 
@@ -83,6 +127,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Store the page ID in a global variable for questions to use
                 window.currentQuizPageId = pageId;
+                // Also store the API key for questions to use
+                window.currentQuizApiKey = apiKey;
 
             } catch (error) {
                 console.error('Error setting up quiz:', error);
@@ -105,9 +151,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Function to make authenticated API calls
         async function apiCall(endpoint, options = {}) {
+            // Use the API key from the global variable (set when quiz is created)
+            if (!window.currentQuizApiKey) {
+                console.error('No API key available. Please ensure the quiz is created first.');
+                return;
+            }
+
             const headers = {
                 'Content-Type': 'application/json',
-                'api-key': CONFIG.API_KEY,
+                'api-key': window.currentQuizApiKey,
                 ...options.headers
             };
 

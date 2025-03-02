@@ -19,6 +19,16 @@ local function escapeJSON(s)
   return s
 end
 
+-- Function to get environment variable or fallback to the provided value
+local function getEnvOrValue(varName, defaultValue)
+  local value = os.getenv(varName)
+  if value and value ~= "" then
+    return value
+  else
+    return defaultValue
+  end
+end
+
 -- Main filter
 function Div(el)
   if el.classes:includes("quiz") then
@@ -27,6 +37,15 @@ function Div(el)
     local title = el.attributes["title"] or "Untitled Quiz"
     local description = el.attributes["description"] or ""
     
+    -- Check for API key in attributes or environment variable
+    local api_key = el.attributes["api-key"] or ""
+    local env_var_name = el.attributes["api-key-env"] or "QUIZ_API_KEY"
+    
+    -- If api-key attribute is not provided or empty, try to get from environment variable
+    if api_key == "" then
+      api_key = getEnvOrValue(env_var_name, "")
+    end
+    
     local quiz_div = pandoc.Div({
       pandoc.RawBlock('html', [[
         <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -34,7 +53,9 @@ function Div(el)
       pandoc.RawBlock('html', string.format([[
         <div class="quiz-container" 
              data-title="%s" 
-             data-description="%s">
+             data-description="%s"
+             data-api-key="%s"
+             data-api-key-env="%s">
           <div class="quiz-header">
             <h3>%s</h3>
             <p class="quiz-description">%s</p>
@@ -51,7 +72,7 @@ function Div(el)
             </div>
           </div>
         </div>
-      ]], title, description, title, description))
+      ]], title, description, escapeJSON(api_key), escapeJSON(env_var_name), title, description))
     })
     
     return quiz_div
