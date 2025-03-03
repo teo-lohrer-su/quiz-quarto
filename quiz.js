@@ -146,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const closeButton = container.querySelector('.close-question');
         const answerCount = container.querySelector('.answer-count');
         const questionText = container.dataset.question;
+        const questionMarkdown = container.dataset.questionMarkdown || questionText; // Always prefer markdown version
         const options = JSON.parse(container.dataset.options);
         let pollInterval;
 
@@ -193,9 +194,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             try {
-                // Get the markdown versions of question and options
-                const questionMarkdown = container.dataset.questionMarkdown || questionText;
-                
                 // Create a modified options array that uses markdown content
                 const optionsWithMarkdown = options.map(option => ({
                     text: option.markdown || option.text, // Use markdown if available

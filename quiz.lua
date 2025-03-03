@@ -103,6 +103,14 @@ function Div(el)
       questionPlainText = pandoc.utils.stringify(pandoc.Pandoc(questionBlocks))
     end
     
+    -- Generate markdown version of the question
+    local questionMarkdown = ""
+    if #questionBlocks > 0 then
+      questionMarkdown = pandoc.write(pandoc.Pandoc(questionBlocks), "markdown")
+      -- Clean up markdown (remove some extra newlines, etc.)
+      questionMarkdown = questionMarkdown:gsub("^\n+", ""):gsub("\n+$", "")
+    end
+    
     -- Step 3: Process the options (BulletList)
     local options = {}
     local optionsHtml = ""
