@@ -1,8 +1,7 @@
 // Configuration
 const CONFIG = {
-    BACKEND_URL: 'http://localhost:8000',
-    STUDENT_URL: 'http://localhost:5173'
-    // API key will be loaded from the document or environment variable
+    BACKEND_URL: 'https://quiz-back-t8sa.onrender.com',
+    STUDENT_URL: 'https://quiz-front-61g6.onrender.com'
 };
 
 document.addEventListener('DOMContentLoaded', function () {
